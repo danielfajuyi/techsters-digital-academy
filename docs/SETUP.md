@@ -71,21 +71,31 @@ Create a Resend account, verify your domain, set `RESEND_API_KEY` and `EMAIL_FRO
    - Client is available at: `http://localhost:5173`
    - Server is available at: `http://localhost:5000`
 
-## 6. Hosting in Production
+## 6. Hosting on Vercel as One Single Project
 
-You do not need to keep Vercel in your codebase. You can host:
+The project is pre-configured with `vercel.json` and `api/index.js` to deploy both the React frontend and Serverless API backend together as **one single project** on Vercel.
 
-- **Client (Frontend)**: Vercel, Netlify, Cloudflare Pages, etc.
-  - Root directory / subfolder: `client`
-  - Build command: `npm run build`
-  - Output directory: `dist`
-  - Set `VITE_API_URL` to your live backend domain (e.g. `https://api.yourdomain.com`).
-- **Server (Backend)**: Render, Railway, Fly.io, DigitalOcean, or VPS.
-  - Root directory / subfolder: `server`
-  - Build / install: `npm install`
-  - Start command: `node index.js`
-  - Set your server environment variables (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY`, `APP_URL`).
-    npm run check:api # syntax-checks the API files
+### Deployment Steps:
+1. Push this repository to GitHub/GitLab.
+2. In Vercel, click **Add New Project** and import the repository.
+3. Keep default settings:
+   - **Framework Preset**: Vite / Other (detected automatically)
+   - **Root Directory**: `./` (leave default)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `client/dist`
+4. Under **Environment Variables**, add:
+   - `SUPABASE_URL`: `https://YOUR-PROJECT.supabase.co`
+   - `SUPABASE_SERVICE_ROLE_KEY`: `your-supabase-service-role-key`
+   - `VITE_SUPABASE_URL`: `https://YOUR-PROJECT.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY`: `your-supabase-anon-key`
+   - `GOOGLE_CLIENT_ID`: `your-google-client-id`
+   - `GOOGLE_CLIENT_SECRET`: `your-google-client-secret`
+   - `PAYSTACK_SECRET_KEY`: `sk_live_...`
+   - `RESEND_API_KEY`: `re_...` (optional)
+   - `EMAIL_FROM`: `Techsters Academy <noreply@yourdomain.com>`
+5. Click **Deploy**.
+
+Vercel will build the frontend into static assets and serve all `/api/*` endpoints through the serverless function handler.
 
 ```
 `npm run dev:web` runs Vite alone (no API).

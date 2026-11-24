@@ -10,8 +10,8 @@ export default [
       const clientId = process.env.GOOGLE_CLIENT_ID;
       if (!clientId) throw new HttpError(500, 'Google client ID is not configured on the server');
 
-      const proto = req.headers['x-forwarded-proto'] || 'http';
-      const host = req.headers.host || 'localhost:5000';
+      const proto = req.headers['x-forwarded-proto'] || (req.headers.host?.includes('localhost') ? 'http' : 'https');
+      const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
       const redirectUri = `${proto}://${host}/api/auth/google/callback`;
 
       const next = query.next || '/app';
@@ -45,7 +45,10 @@ export default [
     auth: false,
     async handler({ req, query }) {
       const { code, state, error: googleError } = query;
-      const appUrl = process.env.APP_URL || 'http://localhost:5173';
+      const proto = req.headers['x-forwarded-proto'] || (req.headers.host?.includes('localhost') ? 'http' : 'https');
+      const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5000';
+      const redirectUri = `${proto}://${host}/api/auth/google/callback`;
+      const appUrl = process.env.APP_URL || `${proto}://${host}`;
 
       let next = '/app';
       if (state) {
@@ -65,10 +68,6 @@ export default [
           },
         };
       }
-
-      const proto = req.headers['x-forwarded-proto'] || 'http';
-      const host = req.headers.host || 'localhost:5000';
-      const redirectUri = `${proto}://${host}/api/auth/google/callback`;
 
       // 1. Exchange authorization code with Google for tokens
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {

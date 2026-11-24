@@ -6,6 +6,11 @@ export const forbidden = (m = 'You do not have permission to do that') => new Ht
 export const notFound = (m = 'Not found') => new HttpError(404, m);
 
 export function readRaw(req) {
+  if (req.body) {
+    if (Buffer.isBuffer(req.body)) return Promise.resolve(req.body);
+    if (typeof req.body === 'string') return Promise.resolve(Buffer.from(req.body));
+    if (typeof req.body === 'object') return Promise.resolve(Buffer.from(JSON.stringify(req.body)));
+  }
   return new Promise((resolve, reject) => {
     const chunks = []; let size = 0;
     req.on('data', (c) => { size += c.length; if (size > 2_000_000) { reject(new HttpError(413, 'Request body too large')); req.destroy(); } else chunks.push(c); });
