@@ -32,6 +32,70 @@ function GoogleButton({ next }) {
 
 const friendly = (m = '') => /invalid login/i.test(m) ? 'Email or password is incorrect.' : /not confirmed/i.test(m) ? 'Confirm your email first. Check your inbox for the link.' : /rate limit/i.test(m) ? 'Too many attempts. Wait a few minutes and try again.' : m;
 
+export function AdminLogin() {
+  const { signIn, user, isAdmin, loading } = useAuth();
+  const nav = useNavigate();
+  const [f, setF] = useState({ email: '', password: '' });
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (user && !loading) {
+      if (isAdmin) {
+        nav('/admin', { replace: true });
+      } else {
+        setErr('This account does not have administrator privileges. Contact system administrator.');
+      }
+    }
+  }, [user, isAdmin, loading, nav]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setErr('');
+    const { error } = await signIn(f.email.trim(), f.password);
+    if (error) {
+      setErr(friendly(error.message));
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card title="Admin Portal" sub="Sign in with your administrative credentials.">
+      <form onSubmit={submit} className="space-y-4">
+        <Field label="Admin Email" htmlFor="admin-email">
+          <input
+            id="admin-email"
+            type="email"
+            autoComplete="email"
+            required
+            className="input"
+            value={f.email}
+            onChange={(e) => setF({ ...f, email: e.target.value })}
+          />
+        </Field>
+        <Field label="Password" htmlFor="admin-pw" error={err}>
+          <input
+            id="admin-pw"
+            type="password"
+            autoComplete="current-password"
+            required
+            className="input"
+            value={f.password}
+            onChange={(e) => setF({ ...f, password: e.target.value })}
+          />
+        </Field>
+        <button className="btn-primary w-full" disabled={busy}>
+          {busy && <Spinner className="h-4 w-4 text-white" />} Access Administration
+        </button>
+      </form>
+      <p className="mt-5 text-center text-sm text-ink-500">
+        Not an admin? <Link className="font-medium text-brand-700" to="/login">Student / General sign in</Link>
+      </p>
+    </Card>
+  );
+}
+
 export function Login() {
   const { signIn, user } = useAuth(); const nav = useNavigate(); const [sp] = useSearchParams(); const next = safeNext(sp.get('next'));
   const [f, setF] = useState({ email: '', password: '' }); const [err, setErr] = useState(sp.get('error') || ''); const [busy, setBusy] = useState(false);

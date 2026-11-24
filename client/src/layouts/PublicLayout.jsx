@@ -46,7 +46,7 @@ export default function PublicLayout() {
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-4">
           <div className="md:col-span-2"><Logo dark className="h-8" /><p className="mt-4 max-w-sm text-sm text-ink-400">Practical, instructor-led tech courses, with certificates anyone can verify.</p></div>
           <div><h3 className="mb-3 text-sm font-semibold text-white">Academy</h3><ul className="space-y-2 text-sm">{[['/courses', 'All courses'], ['/instructors', 'Instructors'], ['/about', 'About'], ['/blog', 'Resources'], ['/verify', 'Verify a certificate']].map(([to, l]) => <li key={to}><Link className="hover:text-white" to={to}>{l}</Link></li>)}</ul></div>
-          <div><h3 className="mb-3 text-sm font-semibold text-white">Support</h3><ul className="space-y-2 text-sm">{[['/faq', 'FAQ'], ['/contact', 'Contact'], ['/terms', 'Terms and conditions'], ['/privacy', 'Privacy policy']].map(([to, l]) => <li key={to}><Link className="hover:text-white" to={to}>{l}</Link></li>)}</ul></div>
+          <div><h3 className="mb-3 text-sm font-semibold text-white">Support</h3><ul className="space-y-2 text-sm">{[['/faq', 'FAQ'], ['/contact', 'Contact'], ['/terms', 'Terms and conditions'], ['/privacy', 'Privacy policy'], ['/admin/login', 'Admin portal']].map(([to, l]) => <li key={to}><Link className="hover:text-white" to={to}>{l}</Link></li>)}</ul></div>
         </div>
         <div className="border-t border-white/10 py-5 text-center text-xs text-ink-400">© {new Date().getFullYear()} Techsters Academy. All rights reserved.</div>
       </footer>

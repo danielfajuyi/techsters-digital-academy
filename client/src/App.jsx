@@ -15,7 +15,7 @@ const InstructorProfile = L(() => import('./pages/public/InstructorProfile.jsx')
 const Static = (name) => L(() => import('./pages/public/Static.jsx').then((m) => ({ default: m[name] })));
 const About = Static('About'), Faq = Static('Faq'), Contact = Static('Contact'), Terms = Static('Terms'), Privacy = Static('Privacy'), Blog = Static('Blog'), BlogPost = Static('BlogPost'), Verify = Static('Verify'), NotFound = Static('NotFound');
 const Auth = (name) => L(() => import('./pages/auth/AuthPages.jsx').then((m) => ({ default: m[name] })));
-const Login = Auth('Login'), Register = Auth('Register'), Forgot = Auth('Forgot'), Reset = Auth('Reset'), Callback = Auth('Callback');
+const Login = Auth('Login'), AdminLogin = Auth('AdminLogin'), Register = Auth('Register'), Forgot = Auth('Forgot'), Reset = Auth('Reset'), Callback = Auth('Callback');
 const Student = (name) => L(() => import('./pages/student/Student.jsx').then((m) => ({ default: m[name] })));
 const SDash = Student('Overview'), SCourses = Student('MyCourses'), Bookmarks = Student('Bookmarks'), Certificates = Student('Certificates'), Notifications = Student('Notifications'), Orders = Student('Orders'), Support = Student('Support'), Profile = Student('Profile'), CheckoutCallback = Student('CheckoutCallback');
 const Learn = L(() => import('./pages/student/Learn.jsx'));
@@ -55,6 +55,7 @@ export default function App() {
             <Route path="verify" element={<Verify />} />
             <Route path="verify/:no" element={<Verify />} />
             <Route path="login" element={<Login />} />
+            <Route path="admin/login" element={<AdminLogin />} />
             <Route path="register" element={<Register />} />
             <Route path="forgot-password" element={<Forgot />} />
             <Route path="reset-password" element={<Reset />} />
