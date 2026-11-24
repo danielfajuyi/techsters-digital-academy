@@ -173,12 +173,82 @@ export function Reset() {
   );
 }
 
-/** OAuth + email-confirmation landing page. PKCE code exchange happens automatically (detectSessionInUrl). */
+/** OAuth + email-confirmation landing page. Handles both URL hash fragments and PKCE codes. */
 export function Callback() {
-  const nav = useNavigate(); const [sp] = useSearchParams(); const { user, loading } = useAuth(); const [timedOut, setTimedOut] = useState(false);
-  const err = sp.get('error_description');
-  useEffect(() => { if (user && !loading) nav(safeNext(sp.get('next')), { replace: true }); }, [user, loading, nav, sp]);
-  useEffect(() => { const t = setTimeout(() => setTimedOut(true), 10000); return () => clearTimeout(t); }, []);
-  if (err || timedOut) return <Card title="We couldn't sign you in"><p className="text-ink-600">{err || 'The sign-in link is invalid or expired.'}</p><Link to="/login" className="btn-primary mt-4">Back to sign in</Link></Card>;
-  return <Card title="Signing you in"><div className="flex items-center gap-3 text-ink-600"><Spinner />One moment…</div></Card>;
+  const nav = useNavigate();
+  const [sp] = useSearchParams();
+  const { user, loading } = useAuth();
+  const [timedOut, setTimedOut] = useState(false);
+  const [authError, setAuthError] = useState('');
+
+  const next = safeNext(sp.get('next'));
+  const errDesc = sp.get('error_description') || sp.get('error');
+
+  useEffect(() => {
+    // 1. Check for tokens in the hash fragment (#access_token=...&refresh_token=...)
+    if (window.location.hash && window.location.hash.includes('access_token=')) {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      const errorMsg = hashParams.get('error_description') || hashParams.get('error');
+      if (errorMsg) {
+        setAuthError(errorMsg);
+        return;
+      }
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+      if (accessToken && refreshToken) {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        }).then(({ data, error }) => {
+          if (error) {
+            setAuthError(error.message);
+          } else if (data?.session) {
+            nav(next, { replace: true });
+          }
+        });
+        return;
+      }
+    }
+
+    // 2. Check for PKCE authorization code (?code=...)
+    const code = sp.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (error) {
+          setAuthError(error.message);
+        } else if (data?.session) {
+          nav(next, { replace: true });
+        }
+      });
+    }
+  }, [nav, next, sp]);
+
+  useEffect(() => {
+    if (user && !loading) {
+      nav(next, { replace: true });
+    }
+  }, [user, loading, nav, next]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setTimedOut(true), 12000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const displayError = authError || errDesc;
+  if (displayError || timedOut) {
+    return (
+      <Card title="We couldn't sign you in">
+        <p className="text-ink-600">{displayError || 'The sign-in link is invalid or expired.'}</p>
+        <Link to="/login" className="btn-primary mt-4">Back to sign in</Link>
+      </Card>
+    );
+  }
+
+  return (
+    <Card title="Signing you in">
+      <div className="flex items-center gap-3 text-ink-600">
+        <Spinner /> One moment…
+      </div>
+    </Card>
+  );
 }

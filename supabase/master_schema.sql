@@ -882,6 +882,22 @@ insert into public.faqs (question, answer, position) values
   ('Can I try a course first?','Yes. Look for lessons marked Preview on the course page. Some courses are free.',4)
 on conflict do nothing;
 
+-- ─────────────────────────────────────────────────────────────────────────────
+-- 9. SCHEMA PERMISSIONS (SERVICE ROLE / AUTHENTICATED / ANON)
+-- ─────────────────────────────────────────────────────────────────────────────
+grant usage on schema public to postgres, anon, authenticated, service_role;
+
+grant all privileges on all tables in schema public to postgres, service_role;
+grant all privileges on all sequences in schema public to postgres, service_role;
+grant all privileges on all routines in schema public to postgres, service_role;
+
+alter default privileges in schema public grant all on tables to postgres, service_role;
+alter default privileges in schema public grant all on sequences to postgres, service_role;
+alter default privileges in schema public grant all on routines to postgres, service_role;
+
+grant select, insert, update, delete on all tables in schema public to authenticated;
+grant select on all tables in schema public to anon;
+
 -- ============================================================================
 -- MASTER SCRIPT COMPLETE
 -- ============================================================================
