@@ -47,7 +47,7 @@ async function buildCertificatePdf({ name, course, no, date, signatory }) {
   const page = pdf.addPage([842, 595]);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const reg = await pdf.embedFont(StandardFonts.Helvetica);
-  const blue = rgb(0x02 / 255, 0x60 / 255, 1); const ink = rgb(0.055, 0.055, 0.055); const grey = rgb(0.42, 0.44, 0.5);
+  const blue = rgb(0x0c / 255, 0x7c / 255, 0x92 / 255);  // brand teal (darkened from #1bb0ce for print contrast) const ink = rgb(0.055, 0.055, 0.055); const grey = rgb(0.42, 0.44, 0.5);
   const center = (t, y, size, font, color) => page.drawText(t, { x: (842 - font.widthOfTextAtSize(t, size)) / 2, y, size, font, color });
   page.drawRectangle({ x: 24, y: 24, width: 794, height: 547, borderColor: blue, borderWidth: 3 });
   page.drawRectangle({ x: 34, y: 34, width: 774, height: 527, borderColor: rgb(0.88, 0.89, 0.92), borderWidth: 1 });
@@ -107,6 +107,20 @@ export default [
   { method: 'GET', path: '/me/orders', auth: 'user', handler: async ({ user }) => must(await admin().from('orders').select('id,reference,amount_minor,currency,status,created_at,paid_at,courses(title,slug)').eq('user_id', user.id).order('created_at', { ascending: false })) },
   { method: 'GET', path: '/me/certificates', auth: 'user', handler: async ({ user }) => must(await admin().from('certificates').select('id,certificate_no,course_title,issued_at,course_id').eq('user_id', user.id).order('issued_at', { ascending: false })) },
   { method: 'GET', path: '/me/bookmarks', auth: 'user', handler: async ({ user }) => must(await admin().from('bookmarks').select('lesson_id,created_at,lessons(id,title,courses(slug,title))').eq('user_id', user.id).order('created_at', { ascending: false })) },
+
+  // ───────── Grades / performance history ─────────
+  { method: 'GET', path: '/me/grades', auth: 'user', async handler({ user }) {
+    const attempts = must(await admin().from('quiz_attempts').select('id,lesson_id,score_percent,passed,submitted_at').eq('user_id', user.id).not('submitted_at', 'is', null).order('submitted_at', { ascending: false }).limit(200));
+    const subs = must(await admin().from('assignment_submissions').select('id,lesson_id,status,score,feedback,submitted_at,graded_at').eq('user_id', user.id).order('submitted_at', { ascending: false }).limit(200));
+    const ids = [...new Set([...attempts, ...subs].map((x) => x.lesson_id))];
+    const lessons = ids.length ? must(await admin().from('lessons').select('id,title,courses(title,slug)').in('id', ids)) : [];
+    const asg = subs.length ? must(await admin().from('assignments').select('lesson_id,max_score').in('lesson_id', subs.map((x) => x.lesson_id))) : [];
+    const L = (id) => lessons.find((l) => l.id === id);
+    return {
+      quizzes: attempts.map((a) => ({ ...a, lesson: L(a.lesson_id)?.title, course: L(a.lesson_id)?.courses })),
+      assignments: subs.map((a) => ({ ...a, max_score: asg.find((x) => x.lesson_id === a.lesson_id)?.max_score ?? 100, lesson: L(a.lesson_id)?.title, course: L(a.lesson_id)?.courses })),
+    };
+  } },
 
   // ───────── Notifications ─────────
   { method: 'GET', path: '/notifications', auth: 'user', handler: async ({ user }) => must(await admin().from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(100)) },

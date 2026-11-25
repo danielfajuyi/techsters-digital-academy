@@ -6,6 +6,7 @@ import { api } from '../../lib/api.js';
 import { supabase } from '../../lib/supabase.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../components/ui/Toast.jsx';
+import { RichEditor } from '../../components/ui/RichEditor.jsx';
 import { Async, Badge, Confirm, EmptyState, Field, Modal, Spinner, StatusBadge, Tabs, cx } from '../../components/ui/index.jsx';
 import { fromMinor, toMinor } from '../../lib/format.js';
 
@@ -36,7 +37,7 @@ function Details({ data, reload }) {
       <div className="card space-y-4 p-5">
         <Field label="Title" htmlFor="t"><input id="t" required minLength={3} className="input" value={f.title || ''} onChange={set('title')} /></Field>
         <Field label="Subtitle" htmlFor="s" hint="One line shown on course cards"><input id="s" className="input" value={f.subtitle || ''} onChange={set('subtitle')} /></Field>
-        <Field label="Description" htmlFor="d" hint="Basic HTML is allowed: p, strong, em, ul, ol, li, h2, h3, a"><textarea id="d" className="input min-h-[180px] font-mono text-[13px]" value={f.description || ''} onChange={set('description')} /></Field>
+        <Field label="Description"><RichEditor value={f.description || ''} onChange={(h) => setF((p) => ({ ...p, description: h }))} label="Course description" /></Field>
         <div className="grid gap-4 sm:grid-cols-2"><Field label="What students will learn" hint="One per line"><textarea className="input min-h-[120px]" value={f.outcomes || ''} onChange={set('outcomes')} /></Field><Field label="Requirements" hint="One per line"><textarea className="input min-h-[120px]" value={f.requirements || ''} onChange={set('requirements')} /></Field></div>
       </div>
       <div className="space-y-4">
@@ -50,7 +51,7 @@ function Details({ data, reload }) {
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!f.certificate_enabled} onChange={set('certificate_enabled')} />Issue certificates</label>
           {isAdmin && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!f.is_featured} onChange={set('is_featured')} />Feature on homepage</label>}
         </div>
-        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Save changes</button>
+        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Save changes</button>
       </div>
     </form>
   );
@@ -102,7 +103,7 @@ function LessonEditor({ lesson, onClose, reload }) {
           <Field label={f.video_provider === 'storage' ? 'Uploaded file' : 'Video link or ID'} htmlFor="vu" hint={f.video_provider === 'bunny' || f.video_provider === 'mux' ? 'Paste the provider’s embed URL (https://…)' : undefined}><input id="vu" className="input" value={f.video_url} onChange={(e) => setF({ ...f, video_url: e.target.value })} readOnly={f.video_provider === 'storage'} /></Field></div>
           <input ref={vidRef} type="file" accept="video/mp4" className="sr-only" onChange={(e) => upFile(e.target.files?.[0], 'video')} /><button type="button" className="btn-outline btn-sm" onClick={() => vidRef.current?.click()} disabled={up}>{up ? <Spinner className="h-4 w-4" /> : <Upload className="h-4 w-4" />}Upload MP4 (small files)</button>
           <p className="text-xs text-ink-500">For long or large videos use YouTube (unlisted), Vimeo, Bunny or Mux. Uploads are limited by your Supabase plan's file size limit.</p></div>}
-        {(l.type === 'video' || l.type === 'text') && <Field label={l.type === 'text' ? 'Lesson content' : 'Notes under the video (optional)'} htmlFor="lb" hint="Basic HTML allowed"><textarea id="lb" className="input min-h-[160px] font-mono text-[13px]" value={f.body_html} onChange={(e) => setF({ ...f, body_html: e.target.value })} /></Field>}
+        {(l.type === 'video' || l.type === 'text') && <Field label={l.type === 'text' ? 'Lesson content' : 'Notes under the video (optional)'}><RichEditor value={f.body_html} onChange={(h) => setF((p) => ({ ...p, body_html: h }))} label="Lesson content" /></Field>}
 
         {l.type === 'quiz' && quiz && <div className="space-y-4">
           <div className="grid grid-cols-3 gap-3"><Field label="Pass mark (%)"><input type="number" min="1" max="100" className="input" value={quiz.passing_score} onChange={(e) => setQuiz({ ...quiz, passing_score: e.target.value })} /></Field><Field label="Time (min)" hint="Blank = none"><input type="number" min="1" className="input" value={quiz.time_limit_minutes} onChange={(e) => setQuiz({ ...quiz, time_limit_minutes: e.target.value })} /></Field><Field label="Max attempts" hint="Blank = unlimited"><input type="number" min="1" className="input" value={quiz.max_attempts} onChange={(e) => setQuiz({ ...quiz, max_attempts: e.target.value })} /></Field></div>
@@ -117,13 +118,13 @@ function LessonEditor({ lesson, onClose, reload }) {
               <input className="input" placeholder="Explanation shown after submission (optional)" value={q.explanation || ''} onChange={(e) => upQ(i, { explanation: e.target.value })} /></div>))}
           <div className="flex flex-wrap gap-2"><button type="button" className="btn-outline btn-sm" onClick={() => addQ('single')}>+ Single choice</button><button type="button" className="btn-outline btn-sm" onClick={() => addQ('multiple')}>+ Multiple select</button><button type="button" className="btn-outline btn-sm" onClick={() => addQ('true_false')}>+ True / false</button></div></div>}
 
-        {l.type === 'assignment' && asg && <div className="space-y-3"><Field label="Instructions" hint="Basic HTML allowed"><textarea className="input min-h-[140px]" value={asg.instructions} onChange={(e) => setAsg({ ...asg, instructions: e.target.value })} /></Field>
+        {l.type === 'assignment' && asg && <div className="space-y-3"><Field label="Instructions"><RichEditor value={asg.instructions} onChange={(h) => setAsg((p) => ({ ...p, instructions: h }))} label="Assignment instructions" /></Field>
           <div className="grid grid-cols-2 gap-3"><Field label="Deadline"><input type="datetime-local" className="input" value={asg.due_at} onChange={(e) => setAsg({ ...asg, due_at: e.target.value })} /></Field><Field label="Max score"><input type="number" min="1" className="input" value={asg.max_score} onChange={(e) => setAsg({ ...asg, max_score: e.target.value })} /></Field></div>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={asg.allow_resubmission} onChange={(e) => setAsg({ ...asg, allow_resubmission: e.target.checked })} />Allow resubmission</label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={asg.is_required} onChange={(e) => setAsg({ ...asg, is_required: e.target.checked })} />Required for certificate</label></div>}
 
         <div><p className="label">Downloadable resources</p>{res.map((r) => <div key={r.id} className="mb-1 flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2 text-sm"><span className="truncate">{r.name}</span><button type="button" onClick={() => delRes(r)} aria-label={`Delete ${r.name}`}><Trash2 className="h-4 w-4 text-ink-400" /></button></div>)}
           <input ref={fileRef} type="file" className="sr-only" accept=".pdf,.zip,.png,.jpg,.jpeg,.txt,.docx,.pptx" onChange={(e) => upFile(e.target.files?.[0], 'resource')} /><button type="button" className="btn-outline btn-sm" onClick={() => fileRef.current?.click()} disabled={up}>{up ? <Spinner className="h-4 w-4" /> : <Upload className="h-4 w-4" />}Add file</button></div>
-        <div className="flex justify-end gap-2 border-t border-ink-100 pt-4"><button type="button" className="btn-outline" onClick={onClose}>Cancel</button><button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Save lesson</button></div>
+        <div className="flex justify-end gap-2 border-t border-ink-100 pt-4"><button type="button" className="btn-outline" onClick={onClose}>Cancel</button><button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Save lesson</button></div>
       </form>
     </Modal>
   );
@@ -161,6 +162,24 @@ function Curriculum({ data, reload }) {
   );
 }
 
+
+/* ───────── Instructors tab (admin) ───────── */
+function InstructorsTab({ data, reload }) {
+  const toast = useToast(); const inst = useApi('/admin/users?role=instructor'); const adm = useApi('/admin/users?role=admin');
+  const [sel, setSel] = useState(() => new Set(data.instructors.map((i) => i.user_id))); const [busy, setBusy] = useState(false);
+  const pool = [...(inst.data?.items || []), ...(adm.data?.items || [])].filter((u, i, a) => a.findIndex((x) => x.id === u.id) === i);
+  const toggle = (id) => setSel((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const save = async () => { setBusy(true); try { await api(`/staff/courses/${data.course.id}/instructors`, { method: 'PUT', body: { userIds: [...sel] } }); toast('Instructors updated'); reload(); } catch (x) { toast(x.message, 'error'); } setBusy(false); };
+  return (
+    <div className="card max-w-xl space-y-4 p-5">
+      <div><h2 className="font-semibold">Course instructors</h2><p className="text-sm text-ink-500">Instructors can edit this course, see its students and grade assignments. Only users with the Instructor or Admin role appear here. Grant roles in Admin → Users.</p></div>
+      {inst.loading || adm.loading ? <Spinner /> : pool.length === 0 ? <p className="text-sm text-ink-500">No instructors yet.</p> : (
+        <ul className="divide-y divide-ink-100">{pool.map((u) => <li key={u.id}><label className="flex cursor-pointer items-center gap-3 py-2.5"><input type="checkbox" checked={sel.has(u.id)} onChange={() => toggle(u.id)} /><span className="flex-1"><span className="block text-sm font-medium text-ink-900">{u.full_name}</span><span className="text-xs text-ink-500">{u.email}</span></span>{u.roles.includes('admin') && <Badge tone="red">admin</Badge>}</label></li>)}</ul>)}
+      <button className="btn-primary" onClick={save} disabled={busy || sel.size === 0}>{busy && <Spinner className="h-4 w-4 text-current" />}Save instructors</button>
+    </div>
+  );
+}
+
 /* ───────── Page ───────── */
 export default function CourseEditor() {
   const { id } = useParams(); const s = useApi(`/staff/courses/${id}`); const toast = useToast(); const { isAdmin } = useAuth(); const [tab, setTab] = useState('details'); const [busy, setBusy] = useState(false); const [delOpen, setDelOpen] = useState(false);
@@ -174,8 +193,8 @@ export default function CourseEditor() {
           <div className="flex flex-wrap gap-2"><Link to={`/courses/${d.course.slug}`} className="btn-outline btn-sm"><Eye className="h-4 w-4" />Preview</Link>
             {d.course.status !== 'published' ? <button className="btn-primary btn-sm" onClick={() => setStatus('published')} disabled={busy}>Publish</button> : <button className="btn-outline btn-sm" onClick={() => setStatus('draft')} disabled={busy}>Unpublish</button>}
             {d.course.status !== 'archived' && <button className="btn-outline btn-sm" onClick={() => setStatus('archived')} disabled={busy}>Archive</button>}{isAdmin && <button className="btn-danger btn-sm" onClick={() => setDelOpen(true)}>Delete</button>}</div></div>
-        <Tabs value={tab} onChange={setTab} tabs={[{ id: 'details', label: 'Details & pricing' }, { id: 'curriculum', label: `Curriculum (${d.modules.reduce((a, m) => a + m.lessons.length, 0)} lessons)` }]} />
-        {tab === 'details' ? <Details data={d} reload={s.reload} /> : <Curriculum data={d} reload={s.reload} />}
+        <Tabs value={tab} onChange={setTab} tabs={[{ id: 'details', label: 'Details & pricing' }, { id: 'curriculum', label: `Curriculum (${d.modules.reduce((a, m) => a + m.lessons.length, 0)} lessons)` }, ...(isAdmin ? [{ id: 'instructors', label: 'Instructors' }] : [])]} />
+        {tab === 'details' ? <Details data={d} reload={s.reload} /> : tab === 'curriculum' ? <Curriculum data={d} reload={s.reload} /> : <InstructorsTab data={d} reload={s.reload} />}
         <Confirm open={delOpen} danger onClose={() => setDelOpen(false)} onConfirm={remove} title="Delete this course?" confirmLabel="Delete course">This cannot be undone. Courses with enrolments or orders can't be deleted; archive them instead.</Confirm>
       </>)}</Async>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { BookOpen, CheckCircle2, Clock, Award, Bell, Receipt, Bookmark as BookmarkIcon, LifeBuoy, PlayCircle, XCircle, Download, ShieldCheck } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, Award, Bell, Receipt, Bookmark as BookmarkIcon, LifeBuoy, PlayCircle, BarChart3, XCircle, Download, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useApi } from '../../lib/useApi.js';
 import { api } from '../../lib/api.js';
@@ -52,6 +52,17 @@ export function MyCourses() {
         {list.length ? <div className="space-y-3">{list.map((c) => <CourseRow key={c.id} c={c} />)}</div> : <EmptyState icon={BookOpen} title="Nothing here yet" action={<Link to="/courses" className="btn-primary">Browse courses</Link>} />}</>); }}</Async></>);
 }
 
+
+export function Grades() {
+  const s = useApi('/me/grades');
+  return (<><PageHeader title="Grades" subtitle="Your quiz results and assignment feedback in one place." />
+    <Async state={s}>{({ quizzes, assignments }) => (
+      <div className="space-y-8">
+        <section><h2 className="mb-3 text-lg font-semibold">Quizzes</h2>{quizzes.length ? <div className="table-wrap"><table><thead><tr><th>Quiz</th><th>Course</th><th>Score</th><th>Result</th><th>Date</th></tr></thead><tbody>{quizzes.map((q) => <tr key={q.id}><td className="font-medium text-ink-900">{q.lesson}</td><td>{q.course?.title}</td><td>{Math.round(q.score_percent)}%</td><td><Badge tone={q.passed ? 'green' : 'red'}>{q.passed ? 'Passed' : 'Not passed'}</Badge></td><td>{dateTime(q.submitted_at)}</td></tr>)}</tbody></table></div> : <EmptyState icon={BarChart3} title="No quiz attempts yet">Your results will appear here after you take a quiz.</EmptyState>}</section>
+        <section><h2 className="mb-3 text-lg font-semibold">Assignments</h2>{assignments.length ? <div className="space-y-3">{assignments.map((a) => <div key={a.id} className="card p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-medium text-ink-900">{a.lesson}</p><p className="text-sm text-ink-500">{a.course?.title} · submitted {date(a.submitted_at)}</p></div><div className="flex items-center gap-3">{a.status === 'graded' && <span className="font-display text-lg font-semibold text-ink-900">{a.score}/{a.max_score}</span>}<StatusBadge status={a.status} /></div></div>{a.feedback && <p className="mt-3 rounded-lg bg-brand-50 p-3 text-sm text-ink-700"><strong>Feedback:</strong> {a.feedback}</p>}</div>)}</div> : <EmptyState icon={BarChart3} title="No assignments submitted yet" />}</section>
+      </div>)}</Async></>);
+}
+
 export function Bookmarks() {
   const s = useApi('/me/bookmarks');
   return (<><PageHeader title="Bookmarks" subtitle="Lessons you saved to revisit." />
@@ -65,7 +76,7 @@ export function Certificates() {
   return (<><PageHeader title="Certificates" subtitle="Earned by completing courses. Share the verification link with anyone." />
     <Async state={s}>{(list) => list.length ? <div className="grid gap-4 sm:grid-cols-2">{list.map((c) => (
       <div key={c.id} className="card p-5"><Award className="h-6 w-6 text-brand-600" /><h3 className="mt-3 text-base font-semibold">{c.course_title}</h3><p className="mt-1 text-sm text-ink-500">Issued {date(c.issued_at)} · {c.certificate_no}</p>
-        <div className="mt-4 flex flex-wrap gap-2"><button className="btn-primary btn-sm" onClick={() => get(c)} disabled={busy === c.id}>{busy === c.id ? <Spinner className="h-4 w-4 text-white" /> : <Download className="h-4 w-4" />}Download PDF</button>
+        <div className="mt-4 flex flex-wrap gap-2"><button className="btn-primary btn-sm" onClick={() => get(c)} disabled={busy === c.id}>{busy === c.id ? <Spinner className="h-4 w-4 text-current" /> : <Download className="h-4 w-4" />}Download PDF</button>
           <button className="btn-outline btn-sm" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/verify/${c.certificate_no}`); toast('Verification link copied'); }}><ShieldCheck className="h-4 w-4" />Copy verify link</button></div></div>))}</div>
       : <EmptyState icon={Award} title="No certificates yet" action={<Link to="/app/courses" className="btn-primary">Go to my courses</Link>}>Finish every lesson, pass required quizzes and get assignments graded to claim one.</EmptyState>}</Async></>);
 }
@@ -94,7 +105,7 @@ export function Support() {
   return (<><PageHeader title="Support" subtitle="Ask a question about a course, payment or your account." />
     <div className="grid gap-6 lg:grid-cols-2">
       <form onSubmit={send} className="card space-y-4 p-5"><Field label="Subject" htmlFor="sub"><input id="sub" required minLength={3} className="input" value={f.subject} onChange={(e) => setF({ ...f, subject: e.target.value })} /></Field>
-        <Field label="How can we help?" htmlFor="msg"><textarea id="msg" required minLength={10} className="input min-h-[120px]" value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field><button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Send ticket</button></form>
+        <Field label="How can we help?" htmlFor="msg"><textarea id="msg" required minLength={10} className="input min-h-[120px]" value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field><button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Send ticket</button></form>
       <div><h2 className="mb-3 text-lg font-semibold">Your tickets</h2><Async state={s}>{(list) => list.length ? <div className="space-y-3">{list.map((t) => <div key={t.id} className="card p-4"><div className="flex items-center justify-between gap-2"><p className="font-medium text-ink-900">{t.subject}</p><StatusBadge status={t.status} /></div><p className="mt-1 text-sm text-ink-500">{t.message}</p>{t.admin_reply && <p className="mt-3 rounded-lg bg-brand-50 p-3 text-sm text-ink-700"><strong>Reply:</strong> {t.admin_reply}</p>}</div>)}</div> : <EmptyState icon={LifeBuoy} title="No tickets" />}</Async></div>
     </div></>);
 }
@@ -128,7 +139,7 @@ export function Profile() {
         <Field label="Headline" htmlFor="hl"><input id="hl" className="input" placeholder="e.g. Junior front-end developer" value={f.headline} onChange={(e) => setF({ ...f, headline: e.target.value })} /></Field>
         <Field label="Phone" htmlFor="ph"><input id="ph" className="input" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} /></Field>
         <Field label="Bio" htmlFor="bio"><textarea id="bio" className="input min-h-[100px]" value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} /></Field>
-        <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Save changes</button>
+        <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Save changes</button>
       </form>
       <div className="space-y-6">
         <section className="card space-y-3 p-5"><h2 className="font-semibold">Email preferences</h2>

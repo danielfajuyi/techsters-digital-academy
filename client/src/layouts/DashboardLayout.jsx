@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, BookOpen, Award, Bell, Receipt, User, LifeBuoy, GraduationCap, Users, ClipboardCheck, Megaphone, LayoutDashboard, UserCog, CreditCard, ListChecks, Settings, ScrollText, Layers, LogOut, Bookmark, Globe, MessageSquare, Ticket } from 'lucide-react';
+import { Menu, X, Home, BookOpen, Award, Bell, Receipt, User, LifeBuoy, GraduationCap, Users, ClipboardCheck, Megaphone, LayoutDashboard, UserCog, CreditCard, ListChecks, Settings, ScrollText, Layers, LogOut, Bookmark, Globe, MessageSquare, Ticket, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Avatar, Logo } from '../components/ui/index.jsx';
+import { ThemeToggle } from '../components/ui/Theme.jsx';
 
 const NAV = {
   student: [
-    ['/app', 'Overview', Home, true], ['/app/courses', 'My courses', BookOpen], ['/app/bookmarks', 'Bookmarks', Bookmark], ['/app/certificates', 'Certificates', Award],
+    ['/app', 'Overview', Home, true], ['/app/courses', 'My courses', BookOpen], ['/app/grades', 'Grades', BarChart3], ['/app/bookmarks', 'Bookmarks', Bookmark], ['/app/certificates', 'Certificates', Award],
     ['/app/notifications', 'Notifications', Bell], ['/app/orders', 'Payments', Receipt], ['/app/support', 'Support', LifeBuoy], ['/app/profile', 'Profile & settings', User],
   ],
   instructor: [
@@ -29,7 +30,7 @@ export default function DashboardLayout({ area }) {
     <NavLink key={to + label} to={to} end={end} onClick={() => setOpen(false)}
       className={({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-600 hover:bg-ink-100'}`}>
       <Icon className="h-4 w-4" /><span className="flex-1">{label}</span>
-      {label === 'Notifications' && unread > 0 && <span className="rounded-full bg-brand-600 px-1.5 text-[11px] text-white">{unread > 99 ? '99+' : unread}</span>}
+      {label === 'Notifications' && unread > 0 && <span className="rounded-full bg-brand-600 px-1.5 text-[11px] font-semibold text-night">{unread > 99 ? '99+' : unread}</span>}
     </NavLink>
   );
   const side = (
@@ -47,13 +48,14 @@ export default function DashboardLayout({ area }) {
   );
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[256px_1fr]">
-      <aside className="sticky top-0 hidden h-screen border-r border-ink-100 bg-white lg:block">{side}</aside>
-      {open && <div className="fixed inset-0 z-40 lg:hidden"><div className="absolute inset-0 bg-ink-900/40" onClick={() => setOpen(false)} /><aside className="relative h-full w-72 bg-white shadow-pop">{side}</aside></div>}
+      <aside className="sticky top-0 hidden h-screen border-r border-ink-100 bg-surface lg:block">{side}</aside>
+      {open && <div className="fixed inset-0 z-40 lg:hidden"><div className="absolute inset-0 bg-night/40" onClick={() => setOpen(false)} /><aside className="relative h-full w-72 bg-surface shadow-pop">{side}</aside></div>}
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-ink-100 bg-white/90 px-4 backdrop-blur sm:px-6">
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-ink-100 bg-surface/90 px-4 backdrop-blur sm:px-6">
           <button className="btn-ghost px-2 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu">{open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}</button>
           <span className="hidden text-sm text-ink-500 lg:block">{TITLES[area]}</span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <ThemeToggle />
             <Link to="/app/notifications" className="btn-ghost relative px-2" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}><Bell className="h-5 w-5" />{unread > 0 && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-brand-600" />}</Link>
             <Avatar src={profile?.avatar_url} name={profile?.full_name} />
             <button className="btn-ghost btn-sm" onClick={async () => { await signOut(); nav('/'); }}><LogOut className="h-4 w-4" /><span className="hidden sm:inline">Sign out</span></button>

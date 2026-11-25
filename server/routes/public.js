@@ -34,6 +34,7 @@ export async function decorateCourses(courses) {
 
 const LIST_COLS = 'id,slug,title,subtitle,thumbnail_url,level,price_minor,compare_at_minor,currency,is_featured,category_id,course_categories(name,slug)';
 
+const emailSchema = z.object({ email: z.string().trim().toLowerCase().email().max(200) });
 const contactSchema = z.object({ name: z.string().trim().min(2).max(120), email: z.string().trim().email().max(200), message: z.string().trim().min(10).max(3000) });
 
 export default [
@@ -93,6 +94,11 @@ export default [
   { method: 'GET', path: '/verify/:no', limit: 30, async handler({ params }) {
     const rows = must(await admin().rpc('verify_certificate', { p_no: params.no }));
     return rows[0] ? { valid: true, certificate: rows[0] } : { valid: false };
+  } },
+  { method: 'POST', path: '/newsletter', limit: 5, async handler({ body }) {
+    const p = emailSchema.safeParse(body); if (!p.success) throw bad('Enter a valid email address');
+    must(await admin().from('newsletter_subscribers').upsert({ email: p.data.email }, { onConflict: 'email', ignoreDuplicates: true }));
+    return { ok: true };      // same response whether or not they were already subscribed
   } },
   { method: 'POST', path: '/contact', limit: 5, async handler({ body }) {
     const p = contactSchema.safeParse(body); if (!p.success) throw bad('Please check your details and try again', p.error.flatten());

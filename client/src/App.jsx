@@ -17,7 +17,7 @@ const About = Static('About'), Faq = Static('Faq'), Contact = Static('Contact'),
 const Auth = (name) => L(() => import('./pages/auth/AuthPages.jsx').then((m) => ({ default: m[name] })));
 const Login = Auth('Login'), AdminLogin = Auth('AdminLogin'), Register = Auth('Register'), Forgot = Auth('Forgot'), Reset = Auth('Reset'), Callback = Auth('Callback');
 const Student = (name) => L(() => import('./pages/student/Student.jsx').then((m) => ({ default: m[name] })));
-const SDash = Student('Overview'), SCourses = Student('MyCourses'), Bookmarks = Student('Bookmarks'), Certificates = Student('Certificates'), Notifications = Student('Notifications'), Orders = Student('Orders'), Support = Student('Support'), Profile = Student('Profile'), CheckoutCallback = Student('CheckoutCallback');
+const SDash = Student('Overview'), SCourses = Student('MyCourses'), Bookmarks = Student('Bookmarks'), Grades = Student('Grades'), Certificates = Student('Certificates'), Notifications = Student('Notifications'), Orders = Student('Orders'), Support = Student('Support'), Profile = Student('Profile'), CheckoutCallback = Student('CheckoutCallback');
 const Learn = L(() => import('./pages/student/Learn.jsx'));
 const Inst = (name) => L(() => import('./pages/instructor/Instructor.jsx').then((m) => ({ default: m[name] })));
 const IOverview = Inst('Overview'), ICourses = Inst('Courses'), IStudents = Inst('Students'), ISubmissions = Inst('Submissions'), IAnnouncements = Inst('Announcements');
@@ -70,6 +70,7 @@ export default function App() {
               <Route index element={<SDash />} />
               <Route path="courses" element={<SCourses />} />
               <Route path="bookmarks" element={<Bookmarks />} />
+              <Route path="grades" element={<Grades />} />
               <Route path="certificates" element={<Certificates />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="orders" element={<Orders />} />

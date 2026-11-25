@@ -99,12 +99,13 @@ export default [
         headers: { Authorization: `Bearer ${tokens.access_token}` },
       });
       const googleUser = await userRes.json();
-      if (!googleUser.email) {
+      // Only trust Google-verified addresses: we link/sign-in by email, so an unverified one could take over an account.
+      if (!googleUser.email || googleUser.email_verified === false) {
         return {
           __raw: {
             status: 302,
             type: 'text/plain',
-            headers: { Location: `${appUrl}/login?error=No+email+provided+by+Google` },
+            headers: { Location: `${appUrl}/login?error=Your+Google+email+is+missing+or+not+verified` },
             body: '',
           },
         };

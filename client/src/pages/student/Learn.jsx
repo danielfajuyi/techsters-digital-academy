@@ -53,12 +53,12 @@ function Quiz({ lesson, onPassed, reload }) {
           {result.review.length > 0 && <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm">{q.questions.map((qn, i) => { const r = result.review.find((x) => x.id === qn.id); return <li key={qn.id}>{r?.correct ? 'Correct' : 'Incorrect'}{r?.explanation ? `: ${r.explanation}` : ''}</li>; })}</ol>}
         </div>)}
       {q.questions.length === 0 ? <p className="text-sm text-ink-500">This quiz has no questions yet.</p> :
-        <button className="btn-primary" onClick={start} disabled={busy || q.attempts_left === 0}>{busy && <Spinner className="h-4 w-4 text-white" />}{q.attempts.length ? 'Try again' : 'Start quiz'}</button>}
+        <button className="btn-primary" onClick={start} disabled={busy || q.attempts_left === 0}>{busy && <Spinner className="h-4 w-4 text-current" />}{q.attempts.length ? 'Try again' : 'Start quiz'}</button>}
     </div>);
 
   return (
     <form className="space-y-5" onSubmit={(e) => { e.preventDefault(); submit(); }}>
-      {left != null && <div className="sticky top-16 z-10 flex items-center gap-2 rounded-lg bg-ink-900 px-4 py-2 text-sm text-white" role="timer"><Timer className="h-4 w-4" />{Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')} remaining</div>}
+      {left != null && <div className="sticky top-16 z-10 flex items-center gap-2 rounded-lg bg-night px-4 py-2 text-sm text-white" role="timer"><Timer className="h-4 w-4" />{Math.floor(left / 60)}:{String(left % 60).padStart(2, '0')} remaining</div>}
       {q.questions.map((qn, i) => (
         <fieldset key={qn.id} className="card p-5"><legend className="sr-only">Question {i + 1}</legend>
           <p className="font-medium text-ink-900">{i + 1}. {qn.prompt}</p>{qn.type === 'multiple' && <p className="mt-1 text-xs text-ink-400">Select all that apply</p>}
@@ -66,7 +66,7 @@ function Quiz({ lesson, onPassed, reload }) {
             <label key={o.id} className={cx('flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm shadow-card', on && 'bg-brand-50 ring-2 ring-brand-600')}>
               <input type={qn.type === 'multiple' ? 'checkbox' : 'radio'} name={qn.id} checked={on} onChange={() => pick(qn, o.id)} className="h-4 w-4 text-brand-600" />{o.text}</label>); })}</div>
         </fieldset>))}
-      <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Submit answers</button>
+      <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Submit answers</button>
     </form>);
 }
 
@@ -97,7 +97,7 @@ function Assignment({ lesson, reload }) {
       {!overdue && !locked && (
         <form onSubmit={submit} className="card space-y-4 p-5"><textarea className="input min-h-[140px]" placeholder="Write your answer here" value={text} onChange={(e) => setText(e.target.value)} aria-label="Your answer" />
           <div><label className="label" htmlFor="af">Attach a file (optional)</label><input id="af" type="file" accept=".pdf,.zip,.png,.jpg,.jpeg,.txt,.docx" onChange={(e) => setFile(e.target.files?.[0] || null)} className="block w-full text-sm" /></div>
-          <button className="btn-primary" disabled={busy || (!text.trim() && !file && !sub?.file_path)}>{busy && <Spinner className="h-4 w-4 text-white" />}{sub ? 'Resubmit' : 'Submit assignment'}</button></form>)}
+          <button className="btn-primary" disabled={busy || (!text.trim() && !file && !sub?.file_path)}>{busy && <Spinner className="h-4 w-4 text-current" />}{sub ? 'Resubmit' : 'Submit assignment'}</button></form>)}
     </div>);
 }
 
@@ -181,16 +181,16 @@ export default function Learn() {
     <div className="min-h-screen bg-ink-50">
       <Async state={s}>{(d) => (
         <>
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-ink-100 bg-white px-4">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-ink-100 bg-surface px-4">
             <Link to="/app/courses" className="btn-ghost btn-sm px-2" aria-label="Back to my courses"><ArrowLeft className="h-4 w-4" /></Link>
             <h2 className="min-w-0 flex-1 truncate font-display text-base font-semibold text-ink-900">{d.course.title}</h2>
             <button className="btn-outline btn-sm lg:hidden" onClick={() => setMenu(true)}><Menu className="h-4 w-4" />Lessons</button>
           </header>
           <div className="lg:grid lg:grid-cols-[1fr_340px]">
             <main className="min-w-0 px-4 py-6 sm:px-8">{current ? <LessonView key={current} lessonId={current} flat={flat} onNav={go} onProgress={refresh} courseSlug={slug} /> : <p className="text-ink-500">This course has no lessons yet.</p>}</main>
-            <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] border-l border-ink-100 bg-white lg:block">{sidebar(d)}</aside>
+            <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] border-l border-ink-100 bg-surface lg:block">{sidebar(d)}</aside>
           </div>
-          {menu && <div className="fixed inset-0 z-40 lg:hidden"><div className="absolute inset-0 bg-ink-900/40" onClick={() => setMenu(false)} /><aside className="absolute inset-y-0 right-0 w-[88%] max-w-sm bg-white shadow-pop"><button className="btn-ghost btn-sm absolute right-2 top-2 z-10" onClick={() => setMenu(false)} aria-label="Close"><X className="h-4 w-4" /></button>{sidebar(d)}</aside></div>}
+          {menu && <div className="fixed inset-0 z-40 lg:hidden"><div className="absolute inset-0 bg-night/40" onClick={() => setMenu(false)} /><aside className="absolute inset-y-0 right-0 w-[88%] max-w-sm bg-surface shadow-pop"><button className="btn-ghost btn-sm absolute right-2 top-2 z-10" onClick={() => setMenu(false)} aria-label="Close"><X className="h-4 w-4" /></button>{sidebar(d)}</aside></div>}
         </>)}</Async>
     </div>
   );

@@ -148,6 +148,13 @@ export default [
     const l = must(await admin().from('lessons').insert({ module_id: params.id, course_id: courseId, ...s.data, position: pos }).select().single());
     if (s.data.type === 'quiz') must(await admin().from('quizzes').insert({ lesson_id: l.id }));
     if (s.data.type === 'assignment') must(await admin().from('assignments').insert({ lesson_id: l.id }));
+    // Tell enrolled students when new material lands in a live course.
+    const course = must(await admin().from('courses').select('slug,title,status').eq('id', courseId).single());
+    if (course.status === 'published') {
+      const enrolled = must(await admin().from('enrollments').select('user_id').eq('course_id', courseId).in('status', ['active', 'completed']));
+      const rows = enrolled.map((e) => ({ user_id: e.user_id, type: 'new_lesson', title: 'New lesson added', body: `${l.title} in ${course.title}`, link: `/learn/${course.slug}?lesson=${l.id}` }));
+      for (let i = 0; i < rows.length; i += 500) await admin().from('notifications').insert(rows.slice(i, i + 500));
+    }
     return l;
   } },
   { method: 'PUT', path: '/staff/lessons/:id', auth: 'staff', async handler({ user, params, body, ip }) {
@@ -251,7 +258,11 @@ export default [
     const targets = must(await q);
     const rows = targets.map((t) => ({ user_id: t.user_id ?? t.id, type: 'announcement', title: s.data.title, body: s.data.body.slice(0, 200), link: t.courses?.slug ? `/learn/${t.courses.slug}` : '/app' }));
     for (let i = 0; i < rows.length; i += 500) await admin().from('notifications').insert(rows.slice(i, i + 500));
-    if (targets.length <= 200) targets.forEach((t) => sendEmail({ to: t.profiles?.email ?? t.email, subject: s.data.title, heading: s.data.title, body: s.data.body }));
+    if (targets.length <= 200) {   // respect each student's "email me" preference; in-app notification is always sent
+      const prefs = must(await admin().from('user_settings').select('user_id,email_notifications').in('user_id', targets.map((t) => t.user_id ?? t.id)));
+      const off = new Set(prefs.filter((x) => x.email_notifications === false).map((x) => x.user_id));
+      targets.filter((t) => !off.has(t.user_id ?? t.id)).forEach((t) => sendEmail({ to: t.profiles?.email ?? t.email, subject: s.data.title, heading: s.data.title, body: s.data.body }));
+    }
     await audit(user, 'announcement.create', 'announcement', a.id, { recipients: rows.length }, ip);
     return { ...a, recipients: rows.length };
   } },

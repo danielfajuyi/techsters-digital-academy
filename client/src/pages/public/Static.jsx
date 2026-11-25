@@ -11,16 +11,36 @@ const Shell = ({ title, lead, children, narrow = true }) => (
   <div className={`mx-auto px-4 py-12 sm:px-6 ${narrow ? 'max-w-3xl' : 'max-w-6xl'}`}><h1 className="text-4xl font-semibold">{title}</h1>{lead && <p className="mt-3 text-lg text-ink-600">{lead}</p>}<div className="mt-8">{children}</div></div>
 );
 
+const MAIN = 'https://techsters.com.ng';
+const clientQuotes = [
+  ['Working with Techsters was an absolute game-changer for our business!', 'Baanssure Cleaning Service'],
+  ['Working with Techsters was a game-changer for us!', 'Tombrem Migration Service'],
+  ['Techsters transformed our online business with a beautifully designed and highly functional e-commerce website.', 'Retro Beauty Root Limited'],
+  ['Techsters did an incredible job designing our website!', 'Sags Hotel'],
+];
+
 export function About() {
   return (
-    <Shell title="About Techsters Academy" lead="We teach practical tech skills through short courses taught by working professionals.">
-      <div className="rich">
-        <h2>How we teach</h2><p>Each course is built around doing the work. You watch or read a lesson, try it yourself, and get checked through quizzes and instructor-reviewed assignments.</p>
-        <h2>What you get</h2><p>Progress that is saved to your account, downloadable materials, a place to take notes, and a certificate with a public verification link when you finish.</p>
-        <h2>Who it's for</h2><p>Beginners starting a career in tech and professionals adding a new skill. Every course lists its level and requirements before you enrol.</p>
+    <div>
+      <section className="relative overflow-hidden border-b border-ink-100"><div className="hero-glow absolute inset-0" aria-hidden />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6"><p className="text-sm font-semibold text-brand-700">About the Academy</p>
+          <h1 className="mt-2 max-w-3xl text-4xl font-semibold sm:text-5xl">We teach what we do every day for real clients.</h1>
+          <p className="mt-5 max-w-2xl text-lg text-ink-600">Techsters is a dynamic digital agency based in Abuja, Nigeria and South Wales, UK, specialising in web design, graphic design, brand management and digital skills training. The Academy brings that experience to students, professionals and business owners.</p>
+          <div className="mt-8 flex flex-wrap gap-3"><Link to="/courses" className="btn-primary">Browse courses</Link><a href={MAIN} target="_blank" rel="noreferrer" className="btn-outline">Visit techsters.com.ng</a></div></div></section>
+      <div className="mx-auto max-w-6xl space-y-16 px-4 py-14 sm:px-6">
+        <section className="grid gap-6 md:grid-cols-2">
+          <div className="card p-7"><h2 className="text-2xl font-semibold">Our mission</h2><p className="mt-3 text-ink-600">To bridge the gap between businesses and digital success with solutions in web design, branding and digital training, equipping businesses and individuals with the right tools and knowledge to thrive in a fast-evolving digital space.</p></div>
+          <div className="card p-7"><h2 className="text-2xl font-semibold">Our vision</h2><p className="mt-3 text-ink-600">A world where every business, regardless of size, has access to professional digital solutions, and where individuals can build digital skills that open doors to endless opportunities.</p></div>
+        </section>
+        <section><h2 className="text-3xl font-semibold">What we teach</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[['Web Development', 'Responsive, high-performing websites that turn visitors into loyal customers.'], ['Brand Design', 'Logos, colours and visuals that build recognition and trust.'], ['Social Media Management', 'Professional visuals and content strategies that attract, connect and convert.'], ['AI Automation & Productivity', 'Practical workflows and tools that save hours every week.']].map(([t, d]) => <div key={t} className="card p-5"><h3 className="font-semibold">{t}</h3><p className="mt-1.5 text-sm text-ink-500">{d}</p></div>)}</div></section>
+        <section><h2 className="text-3xl font-semibold">Why learn with Techsters</h2>
+          <div className="mt-6 grid gap-6 md:grid-cols-3">{[['Expert team', 'Skilled professionals who are passionate about web design, branding and digital innovation.'], ['Results-driven', 'Our focus is real impact, whether that is engagement, sales or brand growth.'], ['Ongoing support', "Our relationship doesn't end after the lesson. We're here for continuous improvement and growth."]].map(([t, d]) => <div key={t}><h3 className="text-lg font-semibold">{t}</h3><p className="mt-1.5 text-ink-600">{d}</p></div>)}</div></section>
+        <section><h2 className="text-3xl font-semibold">Trusted by businesses we've built for</h2><p className="mt-1 text-ink-500">From the agency's clients</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">{clientQuotes.map(([q, who]) => <figure key={who} className="card p-6"><blockquote className="text-ink-700">“{q}”</blockquote><figcaption className="mt-3 text-sm font-semibold text-ink-900">{who}</figcaption></figure>)}</div></section>
+        <section className="rounded-2xl bg-night px-6 py-10 text-center sm:px-12"><h2 className="text-2xl font-semibold text-white">Questions about which course fits you?</h2><p className="mt-2 text-slate-300">Book a free 30-minute consultation with the team.</p><a href={`${MAIN}/consultation/`} target="_blank" rel="noreferrer" className="btn-primary mt-6">Book a free consultation</a></section>
       </div>
-      <div className="mt-8 flex gap-3"><Link to="/courses" className="btn-primary">Browse courses</Link><Link to="/contact" className="btn-outline">Contact us</Link></div>
-    </Shell>
+    </div>
   );
 }
 
@@ -41,14 +61,22 @@ export function Contact() {
     setBusy(false);
   };
   return (
-    <Shell title="Contact us" lead="Questions about a course, payment or certificate? Send us a message and we'll reply by email.">
-      {sent ? <div className="card p-6"><h2 className="text-xl font-semibold">Message sent</h2><p className="mt-2 text-ink-600">Thanks, {f.name}. We'll get back to you at {f.email}.</p></div> : (
-        <form onSubmit={submit} className="card space-y-4 p-6">
-          <Field label="Your name" htmlFor="n"><input id="n" className="input" required minLength={2} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
-          <Field label="Email" htmlFor="e"><input id="e" type="email" className="input" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
-          <Field label="Message" htmlFor="m" error={err}><textarea id="m" className="input min-h-[140px]" required minLength={10} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field>
-          <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Send message</button>
-        </form>)}
+    <Shell title="Contact us" lead="Questions about a course, payment or certificate? Send us a message and we'll reply by email." narrow={false}>
+      <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+        {sent ? <div className="card p-6"><h2 className="text-xl font-semibold">Message sent</h2><p className="mt-2 text-ink-600">Thanks, {f.name}. We'll get back to you at {f.email}.</p></div> : (
+          <form onSubmit={submit} className="card space-y-4 p-6">
+            <Field label="Your name" htmlFor="n"><input id="n" className="input" required minLength={2} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
+            <Field label="Email" htmlFor="e"><input id="e" type="email" className="input" required value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
+            <Field label="Message" htmlFor="m" error={err}><textarea id="m" className="input min-h-[140px]" required minLength={10} value={f.message} onChange={(e) => setF({ ...f, message: e.target.value })} /></Field>
+            <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Send message</button>
+          </form>)}
+        <aside className="card h-fit space-y-4 p-6 text-sm">
+          <div><p className="font-semibold text-ink-900">Techsters Digital Agency</p><p className="mt-1 text-ink-600">Abuja, Nigeria | South Wales, UK</p></div>
+          <div><p className="font-semibold text-ink-900">Phone</p><a className="link block" href="tel:+2349033148179">+234 903 314 8179</a><a className="link block" href="tel:+447344059626">+44 7344 059626</a></div>
+          <div><p className="font-semibold text-ink-900">Email</p><a className="link" href="mailto:info@techsters.com.ng">info@techsters.com.ng</a></div>
+          <a className="btn-outline w-full" href="https://techsters.com.ng/consultation/" target="_blank" rel="noreferrer">Book a free consultation</a>
+        </aside>
+      </div>
     </Shell>
   );
 }

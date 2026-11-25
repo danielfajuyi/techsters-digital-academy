@@ -21,7 +21,10 @@ function PreviewPlayer({ lessonId, onClose }) {
 
 export function LessonMedia({ lesson, onProgress, startAt = 0 }) {
   const v = lesson.video;
-  if (!v?.url) return lesson.body_html ? <RichText html={lesson.body_html} /> : null;
+  if (!v?.url) {
+    if (lesson.type === 'video') return <div className="grid aspect-video place-items-center rounded-xl bg-night p-6 text-center text-slate-300"><div><PlayCircle className="mx-auto h-10 w-10 text-brand-600" /><p className="mt-3 font-medium text-white">Video coming soon</p><p className="mt-1 text-sm">This lesson's video hasn't been added yet. Read the notes below in the meantime.</p></div></div>;
+    return lesson.body_html ? <RichText html={lesson.body_html} /> : null;
+  }
   if (v.provider === 'youtube') {
     const id = (/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/.exec(v.url) || [, v.url])[1];
     return <div className="aspect-video overflow-hidden rounded-xl bg-black"><iframe className="h-full w-full" src={`https://www.youtube-nocookie.com/embed/${id}?rel=0`} title={lesson.title} allow="accelerometer; encrypted-media; picture-in-picture" allowFullScreen /></div>;
@@ -107,7 +110,7 @@ export default function CourseDetail() {
                   {(applied ? c.price_minor : c.compare_at_minor) > total && <span className="text-ink-400 line-through">{money(applied ? c.price_minor : c.compare_at_minor, c.currency)}</span>}</div>
                 {enrolled ? <Link to={`/learn/${c.slug}`} className="btn-primary btn-lg w-full">Continue learning</Link> : (
                   <>
-                    <button className="btn-primary btn-lg w-full" onClick={() => enroll(c)} disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}{c.price_minor === 0 ? 'Enroll for free' : 'Enroll now'}</button>
+                    <button className="btn-primary btn-lg w-full" onClick={() => enroll(c)} disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}{c.price_minor === 0 ? 'Enroll for free' : 'Enroll now'}</button>
                     {c.price_minor > 0 && (
                       <div className="flex gap-2"><div className="relative flex-1"><Tag className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-ink-400" /><input className="input pl-9" placeholder="Discount code" value={coupon} onChange={(e) => { setCoupon(e.target.value); setApplied(null); }} aria-label="Discount code" /></div>
                         <button className="btn-outline" disabled={!coupon.trim()} onClick={() => applyCoupon(c)}>Apply</button></div>)}

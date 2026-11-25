@@ -86,7 +86,7 @@ export function AdminLogin() {
           />
         </Field>
         <button className="btn-primary w-full" disabled={busy}>
-          {busy && <Spinner className="h-4 w-4 text-white" />} Access Administration
+          {busy && <Spinner className="h-4 w-4 text-current" />} Access Administration
         </button>
       </form>
       <p className="mt-5 text-center text-sm text-ink-500">
@@ -108,7 +108,7 @@ export function Login() {
         <Field label="Email" htmlFor="email"><input id="email" type="email" autoComplete="email" required className="input" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
         <Field label="Password" htmlFor="pw" error={err}><input id="pw" type="password" autoComplete="current-password" required className="input" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
         <div className="text-right text-sm"><Link to="/forgot-password" className="text-brand-700">Forgot password?</Link></div>
-        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Sign in</button>
+        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Sign in</button>
       </form>
       <p className="mt-5 text-center text-sm text-ink-500">New here? <Link className="font-medium text-brand-700" to={`/register${sp.get('next') ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link></p>
     </Card>
@@ -136,7 +136,7 @@ export function Register() {
         <Field label="Full name" htmlFor="name"><input id="name" autoComplete="name" required minLength={2} className="input" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
         <Field label="Email" htmlFor="email"><input id="email" type="email" autoComplete="email" required className="input" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} /></Field>
         <Field label="Password" htmlFor="pw" hint="At least 8 characters" error={err}><input id="pw" type="password" autoComplete="new-password" required minLength={8} className="input" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} /></Field>
-        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Create account</button>
+        <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Create account</button>
         <p className="text-xs text-ink-400">By continuing you agree to our <Link className="underline" to="/terms">terms</Link> and <Link className="underline" to="/privacy">privacy policy</Link>.</p>
       </form>
       <p className="mt-5 text-center text-sm text-ink-500">Already have an account? <Link className="font-medium text-brand-700" to="/login">Sign in</Link></p>
@@ -151,7 +151,7 @@ export function Forgot() {
     <Card title="Reset your password" sub="We'll email you a link to choose a new one.">
       {sent ? <p className="text-ink-600">If an account exists for <strong>{email}</strong>, a reset link is on its way.</p> : (
         <form onSubmit={submit} className="space-y-4"><Field label="Email" htmlFor="email"><input id="email" type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-          <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Send reset link</button></form>)}
+          <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Send reset link</button></form>)}
       <p className="mt-5 text-center text-sm"><Link className="text-brand-700" to="/login">Back to sign in</Link></p>
     </Card>
   );
@@ -168,7 +168,7 @@ export function Reset() {
     <Card title="Choose a new password">
       {done ? <p className="text-ink-600">Password updated. Taking you to your dashboard…</p> : !session ? <p className="text-ink-600">This link has expired or was already used. <Link className="text-brand-700 underline" to="/forgot-password">Request a new one</Link>.</p> : (
         <form onSubmit={submit} className="space-y-4"><Field label="New password" htmlFor="pw" error={err} hint="At least 8 characters"><input id="pw" type="password" autoComplete="new-password" required className="input" value={pw} onChange={(e) => setPw(e.target.value)} /></Field>
-          <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Update password</button></form>)}
+          <button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Update password</button></form>)}
     </Card>
   );
 }

@@ -126,3 +126,28 @@ Export Mongo to JSON, map by email, and insert with a one-off script using the s
 - The in-memory rate limiter is best-effort per function instance. For hard limits add Vercel Firewall rate-limit rules on `/api/checkout`, `/api/contact` and auth.
 - Terms and Privacy pages are plain-language drafts. Have a lawyer review them.
 ```
+
+---
+
+# Update: brand theme, demo content and new features
+
+## Run the two new SQL files (Supabase → SQL Editor)
+1. `supabase/migrations/0004_site_settings.sql`: homepage copy setting + extra FAQs.
+2. `supabase/demo_courses.sql`: **5 editable demo courses** (35 lessons, 5 quizzes, 5 assignments, 2 resource articles). Safe to re-run; existing slugs are skipped.
+   It also gives your admin account the Instructor role and lists you as instructor on the demo courses. Remove the last block of the file if you'd rather not.
+
+Edit or delete anything afterwards in **Admin → Courses** (or Instructor studio). Video lessons are created without a video: open the lesson and paste a YouTube/Vimeo/Bunny link.
+
+## Light and dark mode
+A sun/moon button sits in every header. First visit follows the device setting; clicking pins a choice (saved in the browser). All colours are CSS variables at the top of `client/src/index.css`.
+Brand cyan **#1bb0ce** is the main site's theme colour. The page backgrounds (a cool, teal-tinted white and a deep teal-navy) are our pairing, not read from your CSS. To match your main site's exact backgrounds, change `--ink-50`, `--surface` and `--ink-*` in `:root` and `.dark`.
+
+## Logo and titles
+The header/footer logo loads from `https://techsters.com.ng/wp-content/uploads/2020/12/cropped-techsters-logo.png`, with `client/public/logo.svg` as a fallback. For a permanent copy, save the logo into `client/public/` and change `MAIN_LOGO` in `client/src/components/ui/index.jsx`.
+
+## Daily assignment reminders (Vercel Cron)
+Set `CRON_SECRET` in Vercel (any long random string). `vercel.json` schedules `/api/cron/reminders` daily at 07:00 UTC; Vercel sends the secret automatically. It notifies (and emails, if the student allows it) enrolled students about assignments due within 48 hours that they haven't submitted. Test manually:
+`curl -H "Authorization: Bearer $CRON_SECRET" https://YOUR-DOMAIN/api/cron/reminders`
+
+## Google sign-in note
+Your custom backend Google flow now also refuses Google accounts whose email isn't verified, because accounts are matched by email.

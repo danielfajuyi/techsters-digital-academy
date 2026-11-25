@@ -16,10 +16,10 @@ export function ToastProvider({ children }) {
       {children}
       <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6" aria-live="polite">
         {items.map((t) => (
-          <div key={t.id} role="status" className="pointer-events-auto flex max-w-sm items-start gap-3 rounded-xl bg-ink-900 px-4 py-3 text-sm text-white shadow-pop">
+          <div key={t.id} role="status" className="pointer-events-auto flex max-w-sm items-start gap-3 rounded-xl bg-night px-4 py-3 text-sm text-white shadow-pop">
             {t.type === 'error' ? <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" /> : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />}
             <span className="flex-1">{t.message}</span>
-            <button onClick={() => setItems((i) => i.filter((x) => x.id !== t.id))} aria-label="Dismiss"><X className="h-4 w-4 text-ink-300" /></button>
+            <button onClick={() => setItems((i) => i.filter((x) => x.id !== t.id))} aria-label="Dismiss"><X className="h-4 w-4 text-slate-300" /></button>
           </div>
         ))}
       </div>

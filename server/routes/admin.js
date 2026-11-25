@@ -167,5 +167,6 @@ export default [
     const t = must(await admin().from('support_tickets').update({ ...s.data, updated_at: new Date().toISOString() }).eq('id', params.id).select('user_id,subject').single());
     if (s.data.admin_reply) await notify(t.user_id, 'support', 'Support replied', `Re: ${t.subject}`, '/app/support'); return { ok: true };
   } },
+  { method: 'GET', path: '/admin/subscribers', auth: 'admin', handler: async () => must(await admin().from('newsletter_subscribers').select('*').order('created_at', { ascending: false }).limit(5000)) },
   { method: 'GET', path: '/admin/messages', auth: 'admin', handler: async () => must(await admin().from('contact_messages').select('*').order('created_at', { ascending: false }).limit(200)) },
 ];

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { Loader2, AlertTriangle, Inbox, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,7 +6,7 @@ import { initials } from '../../lib/format.js';
 
 export const cx = (...a) => a.filter(Boolean).join(' ');
 
-export function Spinner({ className = 'h-5 w-5' }) { return <Loader2 className={cx('animate-spin text-brand-600', className)} aria-label="Loading" />; }
+export function Spinner({ className = 'h-5 w-5' }) { return <Loader2 className={cx('animate-spin', /\btext-/.test(className) ? '' : 'text-brand-600', className)} aria-label="Loading" />; }
 export function PageLoader({ label = 'Loading' }) {
   return <div className="flex min-h-[40vh] items-center justify-center gap-3 text-ink-500" role="status"><Spinner />{label}…</div>;
 }
@@ -24,7 +24,7 @@ export function ErrorState({ error, onRetry }) {
 
 export function EmptyState({ icon: Icon = Inbox, title, children, action }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-ink-200 bg-white px-6 py-14 text-center">
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-ink-200 bg-surface px-6 py-14 text-center">
       <span className="grid h-11 w-11 place-items-center rounded-full bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></span>
       <h3 className="text-base font-semibold">{title}</h3>
       {children && <p className="max-w-sm text-ink-500">{children}</p>}
@@ -85,8 +85,8 @@ export function Modal({ open, onClose, title, children, wide }) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-ink-900/50" onClick={onClose} />
-      <div ref={ref} tabIndex={-1} className={cx('relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-white p-5 shadow-pop sm:rounded-2xl sm:p-6', wide ? 'sm:max-w-2xl' : 'sm:max-w-md')}>
+      <div className="absolute inset-0 bg-night/50" onClick={onClose} />
+      <div ref={ref} tabIndex={-1} className={cx('relative max-h-[92vh] w-full overflow-y-auto rounded-t-2xl bg-surface p-5 shadow-pop sm:rounded-2xl sm:p-6', wide ? 'sm:max-w-2xl' : 'sm:max-w-md')}>
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 className="text-lg font-semibold">{title}</h2>
           <button onClick={onClose} className="btn-ghost btn-sm -mr-2 -mt-1 px-2" aria-label="Close"><X className="h-4 w-4" /></button>
@@ -103,7 +103,7 @@ export function Confirm({ open, onClose, onConfirm, title, children, confirmLabe
       <div className="text-ink-600">{children}</div>
       <div className="mt-6 flex justify-end gap-2">
         <button className="btn-outline" onClick={onClose}>Cancel</button>
-        <button className={danger ? 'btn-danger' : 'btn-primary'} onClick={onConfirm} disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}{confirmLabel}</button>
+        <button className={danger ? 'btn-danger' : 'btn-primary'} onClick={onConfirm} disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}{confirmLabel}</button>
       </div>
     </Modal>
   );
@@ -147,14 +147,26 @@ export function RichText({ html, className }) {
   return <div className={cx('rich', className)} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html || '', { USE_PROFILES: { html: true }, ADD_ATTR: ['target'] }) }} />;
 }
 
-export function Logo({ dark, className = 'h-8' }) {
-  return <img src={dark ? '/logo-dark.svg' : '/logo.svg'} alt="Techsters Academy" className={className} />;
+const MAIN_LOGO = 'https://techsters.com.ng/wp-content/uploads/2020/12/cropped-techsters-logo.png';
+
+/** Main-site logo + "Academy". Falls back to the bundled SVG if the main site is unreachable.
+ *  The logo sits on a white chip in dark mode (and in the footer) so it stays legible on any artwork. */
+export function Logo({ onDark = false, className = 'h-8', academy = true }) {
+  const [src, setSrc] = useState(MAIN_LOGO);
+  return (
+    <span className="inline-flex items-center gap-2.5">
+      <span className={cx('inline-flex items-center rounded-md', onDark ? 'bg-white px-1.5 py-1' : 'dark:bg-white dark:px-1.5 dark:py-1')}>
+        <img src={src} alt="Techsters" className={cx('w-auto', className)} onError={() => src !== '/logo.svg' && setSrc('/logo.svg')} />
+      </span>
+      {academy && <span className={cx('border-l pl-2.5 font-display text-lg font-semibold tracking-tight', onDark ? 'border-white/20 text-white' : 'border-ink-200 text-ink-900')}>Academy</span>}
+    </span>
+  );
 }
 
 export function CourseThumb({ src, title, className }) {
   return src
     ? <img src={src} alt="" loading="lazy" className={cx('object-cover', className)} />
-    : <div className={cx('grid place-items-center bg-gradient-to-br from-brand-600 to-brand-800 p-4 text-center font-display text-lg font-semibold text-white', className)}>{title}</div>;
+    : <div className={cx('grid place-items-center bg-gradient-to-br from-[#0c7c92] to-[#071a22] p-4 text-center font-display text-lg font-semibold text-white', className)}>{title}</div>;
 }
 
 export function CourseCard({ c, formatPrice }) {

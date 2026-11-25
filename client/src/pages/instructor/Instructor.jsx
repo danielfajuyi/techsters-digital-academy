@@ -22,7 +22,7 @@ export function Courses({ admin }) {
   return (<><PageHeader title={admin ? 'All courses' : 'My courses'} action={<button className="btn-primary" onClick={() => setOpen(true)}><Plus className="h-4 w-4" />New course</button>} />
     <Async state={s}>{(list) => list.length ? <div className="table-wrap"><table><thead><tr><th>Course</th><th>Status</th><th>Price</th><th>Students</th><th>Updated</th></tr></thead><tbody>{list.map((c) => <tr key={c.id}><td><Link to={`/instructor/courses/${c.id}`} className="flex items-center gap-3 font-medium text-ink-900 hover:text-brand-700"><CourseThumb src={c.thumbnail_url} title="" className="h-10 w-16 shrink-0 rounded" />{c.title}</Link></td><td><StatusBadge status={c.status} />{c.is_featured && <span className="ml-1"><Badge tone="blue">Featured</Badge></span>}</td><td>{moneyAlways(c.price_minor, c.currency) === '₦0' ? 'Free' : moneyAlways(c.price_minor, c.currency)}</td><td>{c.students}</td><td>{date(c.updated_at)}</td></tr>)}</tbody></table></div>
       : <EmptyState icon={GraduationCap} title="No courses yet" action={<button className="btn-primary" onClick={() => setOpen(true)}>Create a course</button>}>Start with a title. You can add modules and lessons next.</EmptyState>}</Async>
-    <Modal open={open} onClose={() => setOpen(false)} title="New course"><form onSubmit={create} className="space-y-4"><Field label="Course title" htmlFor="t"><input id="t" autoFocus required minLength={3} className="input" value={title} onChange={(e) => setTitle(e.target.value)} /></Field><button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Create course</button></form></Modal></>);
+    <Modal open={open} onClose={() => setOpen(false)} title="New course"><form onSubmit={create} className="space-y-4"><Field label="Course title" htmlFor="t"><input id="t" autoFocus required minLength={3} className="input" value={title} onChange={(e) => setTitle(e.target.value)} /></Field><button className="btn-primary w-full" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Create course</button></form></Modal></>);
 }
 
 export function Students() {
@@ -46,7 +46,7 @@ export function Submissions() {
       <Field label="Score" htmlFor="sc"><input id="sc" type="number" min="0" required className="input" value={f.score} onChange={(e) => setF({ ...f, score: e.target.value })} /></Field>
       <Field label="Feedback" htmlFor="fb"><textarea id="fb" className="input min-h-[100px]" value={f.feedback} onChange={(e) => setF({ ...f, feedback: e.target.value })} /></Field>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.ret} onChange={(e) => setF({ ...f, ret: e.target.checked })} />Return to student for resubmission</label>
-      <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-white" />}Save grade</button></form>}</Modal></>);
+      <button className="btn-primary" disabled={busy}>{busy && <Spinner className="h-4 w-4 text-current" />}Save grade</button></form>}</Modal></>);
 }
 
 export function Announcements() {
@@ -58,6 +58,6 @@ export function Announcements() {
       <form onSubmit={send} className="card h-fit space-y-4 p-5"><Field label="Audience" htmlFor="aud"><select id="aud" className="input" value={f.courseId} onChange={(e) => setF({ ...f, courseId: e.target.value })} required={!isAdmin}>{isAdmin ? <option value="">Whole academy</option> : <option value="">Choose a course</option>}{courses.data?.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}</select></Field>
         <Field label="Title" htmlFor="at"><input id="at" required minLength={3} className="input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} /></Field>
         <Field label="Message" htmlFor="am"><textarea id="am" required minLength={3} className="input min-h-[120px]" value={f.body} onChange={(e) => setF({ ...f, body: e.target.value })} /></Field>
-        <button className="btn-primary w-full" disabled={busy}>{busy ? <Spinner className="h-4 w-4 text-white" /> : <Megaphone className="h-4 w-4" />}Send announcement</button></form>
+        <button className="btn-primary w-full" disabled={busy}>{busy ? <Spinner className="h-4 w-4 text-current" /> : <Megaphone className="h-4 w-4" />}Send announcement</button></form>
       <Async state={s}>{(list) => list.length ? <div className="space-y-3">{list.map((a) => <div key={a.id} className="card p-4"><div className="flex items-center justify-between gap-2"><p className="font-semibold text-ink-900">{a.title}</p><span className="text-xs text-ink-400">{date(a.created_at)}</span></div><p className="text-xs text-ink-500">{a.courses?.title || 'Whole academy'}</p><p className="mt-2 whitespace-pre-line text-sm">{a.body}</p></div>)}</div> : <EmptyState icon={Megaphone} title="No announcements yet" />}</Async></div></>);
 }

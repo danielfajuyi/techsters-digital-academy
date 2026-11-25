@@ -2,6 +2,7 @@ import { send, HttpError, readRaw, clientIp, rateLimit } from './lib/http.js';
 import { authenticate, assertRole } from './lib/auth.js';
 import publicRoutes from './routes/public.js';
 import authRoutes from './routes/auth.js';
+import cronRoutes from './routes/cron.js';
 import studentRoutes from './routes/student.js';
 import paymentRoutes from './routes/payments.js';
 import staffRoutes from './routes/staff.js';
@@ -11,7 +12,7 @@ import adminRoutes from './routes/admin.js';
  * Route shape: { method, path, auth?: 'user'|'staff'|'admin'|'optional', raw?: boolean, handler(ctx) }
  * Handlers return JSON-serialisable data (or { __raw: {status, type, body, headers} } for files).
  */
-const table = [...publicRoutes, ...authRoutes, ...studentRoutes, ...paymentRoutes, ...staffRoutes, ...adminRoutes].map((r) => {
+const table = [...publicRoutes, ...authRoutes, ...cronRoutes, ...studentRoutes, ...paymentRoutes, ...staffRoutes, ...adminRoutes].map((r) => {
   const keys = [];
   const re = new RegExp('^' + r.path.replace(/:([a-zA-Z]+)/g, (_, k) => (keys.push(k), '([^/]+)')) + '/?$');
   return { ...r, re, keys };
